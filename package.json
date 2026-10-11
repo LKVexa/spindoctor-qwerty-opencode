@@ -1,0 +1,10 @@
+{
+  "name": "spindoctor-qwerty-opencode",
+  "version": "1.1.0",
+  "description": "SpinDoctor 3.1.2 native OpenCode tools and skill",
+  "type": "module",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "author": "RUSSELL PHILIP SMITHSON <russellsmithson77@outlook.com>",
+  "dependencies": { "@opencode-ai/plugin": "1.19.0" }
+}
