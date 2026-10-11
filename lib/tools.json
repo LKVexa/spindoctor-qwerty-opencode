@@ -1,0 +1,195 @@
+[
+  {
+    "name": "spindoctor_run_script",
+    "description": "Run one or more SpinDoctor q.* commands (one per line) in the persistent simulator workspace and return each result plus TXT/JSON/PDF report paths. Classical FP64 simulation only; not a quantum computer. Example: 'q.circuit new bell 2\\nq.circuit add h 0\\nq.circuit add cx 0 1\\nq.circuit run shots 1000 basis z'.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "type": "string",
+          "description": "q.* commands, one per line; blank lines and # comments are ignored."
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Optional workspace folder (default ~/spindoctor-workspace or $SPINDOCTOR_WORKSPACE)."
+        }
+      },
+      "required": [
+        "script"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "spindoctor_run_preset",
+    "description": "Run one of the 241 built-in SpinDoctor presets (qc-001..qc-241) with optional name=value overrides; returns per-step results and report paths.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "preset_id": {
+          "type": "string",
+          "description": "Preset id such as qc-061."
+        },
+        "overrides": {
+          "type": "object",
+          "description": "Optional overrides (shots, basis, qubits, input, angle).",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "workspace": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "preset_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "spindoctor_list_presets",
+    "description": "List the SpinDoctor presets (id, category, label, availability, commands). Optional case-insensitive filter text.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "type": "string"
+        },
+        "workspace": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "spindoctor_report",
+    "description": "Return the text of a SpinDoctor report (TXT) from the workspace, or list the newest reports when no name is given.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Report file name or path relative to <workspace>/reports (e.g. qc-061.txt)."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "How many recent reports to list (default 20)."
+        },
+        "workspace": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "spindoctor_functions",
+    "description": "Return the in-chat Markdown table of EVERY SpinDoctor function: columns Function | What it does | Command to type, grouped by command family, with real runnable examples (plus the 241 presets with section='presets'). Show the table to the user verbatim when they ask what the plugin can do, ask for help/functions, or on first use.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "section": {
+          "type": "string",
+          "enum": [
+            "commands",
+            "gates",
+            "tools",
+            "presets",
+            "all"
+          ],
+          "description": "commands (default: tools + every q.* family + gates), gates, tools, presets (241 rows) or all."
+        },
+        "filter": {
+          "type": "string",
+          "description": "Optional case-insensitive text filter (e.g. 'tranche', 'noise', 'grover')."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "spindoctor_test_theory",
+    "description": "Test a theory/experiment with the simulator and write a TXT+JSON+PDF theory test report (hypothesis, script, raw results, verdict supported / not supported / inconclusive, limits). source='file': a .txt/.md/.pdf/.py/.json/.csv/.q attachment by local path; source='text': pasted text; source='chat': a theory summary the AI wrote from the conversation and the user confirmed, plus optional quoted excerpts and/or an exported chat transcript (.txt/.md/.json/.html). Use action='extract' first to read the source, then action='run' with hypothesis, prediction, checks and a q.* script. The plugin cannot read chat history or host attachments by itself.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "extract",
+            "run"
+          ],
+          "description": "extract = read/parse the source only; run (default) = run the script, compare, write the report."
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "file",
+            "text",
+            "chat"
+          ],
+          "description": "Where the theory comes from."
+        },
+        "path": {
+          "type": "string",
+          "description": "Local path of the attachment (source=file) or of an exported chat transcript (source=chat)."
+        },
+        "text": {
+          "type": "string",
+          "description": "Pasted theory text (source=text) or the confirmed theory summary: claims, assumptions, variables, measurable prediction (source=chat)."
+        },
+        "excerpts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "source=chat: verbatim quotes from the conversation, e.g. 'User: ...', 'Assistant: ...'."
+        },
+        "hypothesis": {
+          "type": "string",
+          "description": "The hypothesis restated in one or two sentences (required for run)."
+        },
+        "prediction": {
+          "type": "string",
+          "description": "The measurable prediction in words (required for run)."
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Machine checks. {kind:'probability', outcome:'00', expected:0.5, tolerance:0.05, command?:N} (bitstrings: qubit 0 is the RIGHTMOST bit; uses the last histogram or zero/one counts) | {kind:'value', command:N, path:'result.fidelity', op:'approx|eq|ne|lt|le|gt|ge|contains|true|false', value:X, tolerance?:T} | {kind:'ok', command:N, expected:true}."
+        },
+        "script": {
+          "type": "string",
+          "description": "q.* commands, one per line (defaults to q.* lines found in the source)."
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "title": {
+          "type": "string"
+        },
+        "workspace": {
+          "type": "string"
+        },
+        "isolate": {
+          "type": "boolean",
+          "description": "Default true: run in a fresh sub-workspace (<workspace>/theory-runs/<id>) so names never collide; false = use the shared workspace state."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+]
